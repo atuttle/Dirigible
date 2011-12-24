@@ -149,7 +149,7 @@
 		<!--- serialize payload --->
 		<cfset payload = variables.jsonUtil.serializeToJson(payload, false, true) />
 
-		<cfset apiCall("POST", "/api/push/", payload) />
+		<cfset apiCall("POST", "/api/push/batch/", payload) />
 	</cffunction>
 
 	<!--- internals --->
