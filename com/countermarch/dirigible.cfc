@@ -2,11 +2,12 @@
 
 	<cfset variables.appKey = "" />
 	<cfset variables.appMasterSecret = "" />
-	
-	<cfset variables.devices = structNew()/>
-	<cfset variables.devices.android = arrayNew(1) />
-	<cfset variables.devices.apple = arrayNew(1) />
-	<cfset variables.baseURL = "https://go.urbanairship.com/" />
+
+	<cfset variables.jsonUtil = "" />
+	<cfset variables.devices = {} />
+	<cfset variables.devices.android = {} />
+	<cfset variables.devices.apple = {} />
+	<cfset variables.baseURL = "https://go.urbanairship.com" />
 
 	<!--- public methods; API --->
 
@@ -44,10 +45,10 @@
 	</cffunction>
 
 	<cffunction name="refreshDevices" access="public">
-		<cfdump var="#refreshAppleDevices()#" />
-		<cfdump var="#refreshAndroidDevices()#" />
+		<cfset refreshAppleDevices() />
+		<cfset refreshAndroidDevices() />
 	</cffunction>
-	
+
 	<cffunction name="getDevices">
 		<cfreturn variables.devices />
 	</cffunction>
@@ -167,14 +168,46 @@
 		<cfreturn trim(rereplace(str, "\s+", " ", "ALL")) />
 	</cffunction>
 
-	<cffunction name="refreshAppleDevices" access="private">
+	<!---
+		Get list of all known iOS devices. Docs: http://urbanairship.com/docs/push.html#device-token-list-api
+	--->
+	<cffunction name="refreshAppleDevices" access="private" hint="Gets list of known iOS devices">
 		<cfset var result = apiCall("GET","/api/device_tokens/") />
-		<cfreturn deserializeJson( result.fileContent.toString() ) />
+		<cfset var data = variables.jsonUtil.deserializeFromJson( result.fileContent.toString() ) />
+		<cfset var i = 0 />
+		<cfset variables.devices.apple = {} />
+		<cfif data.device_tokens_count eq 0>
+			<cfreturn />
+		</cfif>
+		<!--- TODO: doesn't support paginated response yet --->
+		<cfloop from="1" to="#data.device_tokens_count#" index="i">
+			<cfset variables.devices.apple[data.device_tokens[i]] = {
+				active = data.device_tokens[i].active,
+				alias = data.device_tokens[i].alias,
+				last_registration = data.device_tokens[i].last_registration
+			} />
+		</cfloop>
 	</cffunction>
 
+	<!---
+		Get list of all known Android devices. Docs: http://urbanairship.com/docs/android.html#listing-apids
+	--->
 	<cffunction name="refreshAndroidDevices" access="private">
 		<cfset var result = apiCall("GET", "/api/apids/") />
-		<cfreturn deserializeJson( result.fileContent.toString() ) />
+		<cfset var data = variables.jsonUtil.deserializeFromJson( result.fileContent.toString() ) />
+		<cfset var i = 0 />
+		<cfset variables.devices.android = {} />
+		<cfif arrayLen(data.apids) eq 0>
+			<cfreturn />
+		</cfif>
+		<!--- TODO: doesn't support paginated response yet --->
+		<cfloop from="1" to="#arrayLen(data.apids)#" index="i">
+			<cfset variables.devices.android[data.apids[i].apid] = {
+				active = data.apids[i].active,
+				alias = data.apids[i].alias,
+				tags = data.apids[i].tags
+			} />
+		</cfloop>
 	</cffunction>
 
 	<cffunction name="apiCall" access="private">
