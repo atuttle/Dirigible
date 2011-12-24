@@ -234,7 +234,7 @@
 			</cfif>
 		</cfhttp>
 
-		<cfif cfhttp.statusCode neq "200 OK">
+		<cfif val(listFirst(cfhttp.statusCode, " ")) gte 300><!--- accept all 2xx as success --->
 			<cfthrow message="Failure response from Urban Airship API: #listFirst(cfhttp.statusCode, ' ')#" detail="#cfhttp.fileContent.toString()#">
 		</cfif>
 
