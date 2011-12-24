@@ -13,6 +13,7 @@
 	<cffunction name="init">
 		<cfargument name="appKey" required="false" />
 		<cfargument name="appMasterSecret" required="false" />
+		<cfargument name="JSONUtil" default="#createObject('component', 'com.JSONUtil')#" />
 
 		<cfif structKeyExists(arguments, "appKey")>
 			<cfset variables.appKey = arguments.appKey />
@@ -20,6 +21,8 @@
 		<cfif structKeyExists(arguments, "appMasterSecret")>
 			<cfset variables.appMasterSecret = arguments.appMasterSecret />
 		</cfif>
+
+		<cfset variables.jsonUtil = arguments.JSONUtil />
 
 		<cfreturn this />
 	</cffunction>
@@ -32,6 +35,11 @@
 	<cffunction name="setAppMasterSecret" access="public">
 		<cfargument name="appMasterSecret" required="true" />
 		<cfset variables.appMasterSecret = arguments.appMasterSecret />
+	</cffunction>
+
+	<cffunction name="setJSONUtil" access="public">
+		<cfargument name="JSONUtil" required="true" />
+		<cfset variables.jsonUtil = arguments.JSONUtil />
 	</cffunction>
 
 	<cffunction name="refreshDevices" access="public">
@@ -137,7 +145,7 @@
 		</cfif>
 
 		<!--- serialize payload --->
-		<cfset payload = serializeJson(payload) />
+		<cfset payload = variables.jsonUtil.serializeToJson(payload, false, true) />
 
 		<cfset apiCall("POST", "/api/push/", payload) />
 	</cffunction>
