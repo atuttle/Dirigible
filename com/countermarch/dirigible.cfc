@@ -18,6 +18,7 @@
 		<cfif structKeyExists(arguments, "appKey")>
 			<cfset variables.appKey = arguments.appKey />
 		</cfif>
+
 		<cfif structKeyExists(arguments, "appMasterSecret")>
 			<cfset variables.appMasterSecret = arguments.appMasterSecret />
 		</cfif>
@@ -62,7 +63,7 @@
 				"android": {
 					"alert":"#escapeStringForJson( msg )#"
 				}
-				
+
 			}
 		</cfoutput></cfsavecontent>
 		<cfset apiCall("POST", "/api/push/broadcast/", compressJsonWhitespace( payload )) />
@@ -81,11 +82,11 @@
 		<!--- TODO: scheduled pushes --->
 		<cfset var payload = arrayNew(1) />
 		<cfset var i = 0 />
-		
+
 		<!---
 			Construct new payload
 		--->
-		
+
 		<!--- iOS --->
 		<cfif arrayLen(arguments.deviceTokens) or arrayLen(arguments.tags) or arrayLen(arguments.aliases)>
 			<cfset i++ />
@@ -117,7 +118,7 @@
 				<cfset payload[i]["aps"]["alert"] = arguments.alert />
 			</cfif>
 		</cfif>
-		
+
 		<!--- Android --->
 		<cfif arrayLen(arguments.apids) or arrayLen(arguments.tags) or arrayLen(arguments.aliases)>
 			<cfset i++ />
@@ -160,7 +161,7 @@
 		<cfargument name="str" />
 		<cfreturn trim(replaceList(arguments.str, '",'',\,#chr(13)#,#chr(10)#,#chr(9)#', '\",\'',\\,\r,\n,\t')) />
 	</cffunction>
-	
+
 	<cffunction name="compressJsonWhitespace" access="private">
 		<cfargument name="str" />
 		<cfreturn trim(rereplace(str, "\s+", " ", "ALL")) />
@@ -189,9 +190,9 @@
 			<cfthrow message="You have not set your Application Master Secret. Pass argument `appMasterSecret` to init() or use `setAppMasterSecret()`">
 		</cfif>
 
-		<cfhttp 
-			method="#arguments.method#" 
-			url="#getBaseURL()##arguments.uri#" 
+		<cfhttp
+			method="#arguments.method#"
+			url="#getBaseURL()##arguments.uri#"
 			username="#variables.appKey#"
 			password="#variables.appMasterSecret#">
 			<cfif structKeyExists(arguments, "body") and len(arguments.body) neq 0>
