@@ -105,7 +105,7 @@
 				<cfset payload[i]["tags"] = arguments.tags />
 			</cfif>
 			<!--- add aliases --->
-			<cfif arrayLen(arguments.deviceTokens)>
+			<cfif arrayLen(arguments.aliases)>
 				<cfset payload[i]["aliases"] = arguments.aliases />
 			</cfif>
 			<cfset payload[i]["aps"] = {} />
